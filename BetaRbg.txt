@@ -1446,56 +1446,54 @@ function brutonlib:MakeWindow(Configs)
     Name = "Hub"
 }), "Main")
 
+local ScreenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
 local RunService = game:GetService("RunService")
 
-local WindowBackground = Create("Frame", MainFrame, {
-    Name = "WindowBackground",
-    Size = UDim2.new(1, 0, 1, 0),
-    Position = UDim2.new(0, 0, 0, 0),
-    BackgroundColor3 = Color3.fromRGB(15, 15, 15),
-    ZIndex = 0
-})
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 600, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
+MainFrame.BackgroundTransparency = 1
 
-Make("Corner", WindowBackground)
+local WindowBackground = Instance.new("Frame", MainFrame)
+WindowBackground.Size = UDim2.new(1,0,1,0)
+WindowBackground.Position = UDim2.new(0,0,0,0)
+WindowBackground.BackgroundColor3 = Color3.fromRGB(15,15,15)
+WindowBackground.BackgroundTransparency = 0
 
-local Stroke = Instance.new("UIStroke")
-Stroke.Thickness = 4
-Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-Stroke.Parent = WindowBackground
+local BackgroundStroke = Instance.new("UIStroke", WindowBackground)
+BackgroundStroke.Thickness = 3
+BackgroundStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+BackgroundStroke.LineJoinMode = Enum.LineJoinMode.Round
 
-local Gradient = Instance.new("UIGradient")
-Gradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0.00, Color3.fromRGB(150, 0, 255)),
-    ColorSequenceKeypoint.new(0.50, Color3.fromRGB(150, 0, 255)),
-    ColorSequenceKeypoint.new(0.50, Color3.fromRGB(0, 0, 0)),
-    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(0, 0, 0))
-})
-Gradient.Rotation = 0
-Gradient.Parent = Stroke
-
-local Glow = Instance.new("UIStroke")
-Glow.Thickness = 10
-Glow.Transparency = 0.65
-Glow.Color = Color3.fromRGB(150, 0, 255)
-Glow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-Glow.Parent = WindowBackground
-
-local RotatingImage = Create("ImageLabel", WindowBackground, {
-    Size = UDim2.new(0, 340, 0, 340),
-    Position = UDim2.new(0.5, 0, 0.5, 0),
-    AnchorPoint = Vector2.new(0.5, 0.5),
-    BackgroundTransparency = 1,
-    Image = "rbxassetid://97255732156702",
-    ImageTransparency = 0.2,
-    ZIndex = 1
-})
-
-Make("Corner", RotatingImage, UDim.new(0, 14))
-
-RunService.RenderStepped:Connect(function(dt)
-    Gradient.Rotation = (Gradient.Rotation + dt * 12) % 360
-    RotatingImage.Rotation = (RotatingImage.Rotation + dt * 35) % 360
+local purple = Color3.fromRGB(140, 0, 255)
+local black = Color3.fromRGB(0,0,0)
+RunService.RenderStepped:Connect(function()
+    local t = tick() * 0.6
+    local alpha = (math.sin(t) + 1)/2
+    BackgroundStroke.Color = purple:Lerp(black, alpha)
 end)
+
+local RotatingImage = Instance.new("ImageLabel", WindowBackground)
+RotatingImage.Size = UDim2.new(0, 250, 0, 250)
+RotatingImage.Position = UDim2.new(0.5,0,0.5,0)
+RotatingImage.AnchorPoint = Vector2.new(0.5,0.5)
+RotatingImage.BackgroundTransparency = 1
+RotatingImage.Image = "rbxassetid://97255732156702"
+RotatingImage.ImageTransparency = 0.2
+RotatingImage.ScaleType = Enum.ScaleType.Crop
+
+local rotationSpeed = 60
+RunService.RenderStepped:Connect(function(dt)
+    RotatingImage.Rotation = (RotatingImage.Rotation + rotationSpeed * dt) % 360
+end)
+
+local function MakeCorner(Frame, Radius)
+    local Corner = Instance.new("UICorner", Frame)
+    Corner.CornerRadius = Radius or UDim.new(0,12)
+end
+
+MakeCorner(WindowBackground)
+MakeCorner(RotatingImage)
 Make("Gradient", MainFrame, {
     Rotation = 45
 })
