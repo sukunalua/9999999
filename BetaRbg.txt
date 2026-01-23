@@ -1453,55 +1453,48 @@ local WindowBackground = Create("Frame", MainFrame, {
     Size = UDim2.new(1, 0, 1, 0),
     Position = UDim2.new(0, 0, 0, 0),
     BackgroundColor3 = Color3.fromRGB(15, 15, 15),
-    BackgroundTransparency = 0,
     ZIndex = 0
 })
 
 Make("Corner", WindowBackground)
 
-local BorderStroke = Instance.new("UIStroke")
-BorderStroke.Thickness = 4
-BorderStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-BorderStroke.Parent = WindowBackground
+local Stroke = Instance.new("UIStroke")
+Stroke.Thickness = 4
+Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+Stroke.Parent = WindowBackground
 
-local BorderGradient = Instance.new("UIGradient")
-BorderGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 0, 0)),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(140, 0, 255)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(140, 0, 255))
+local Gradient = Instance.new("UIGradient")
+Gradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0.00, Color3.fromRGB(150, 0, 255)),
+    ColorSequenceKeypoint.new(0.50, Color3.fromRGB(150, 0, 255)),
+    ColorSequenceKeypoint.new(0.50, Color3.fromRGB(0, 0, 0)),
+    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(0, 0, 0))
 })
-BorderGradient.Rotation = 0
-BorderGradient.Parent = BorderStroke
+Gradient.Rotation = 0
+Gradient.Parent = Stroke
 
-local GlowStroke = Instance.new("UIStroke")
-GlowStroke.Thickness = 9
-GlowStroke.Transparency = 0.65
-GlowStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-GlowStroke.Color = Color3.fromRGB(140, 0, 255)
-GlowStroke.Parent = WindowBackground
+local Glow = Instance.new("UIStroke")
+Glow.Thickness = 10
+Glow.Transparency = 0.65
+Glow.Color = Color3.fromRGB(150, 0, 255)
+Glow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+Glow.Parent = WindowBackground
 
 local RotatingImage = Create("ImageLabel", WindowBackground, {
-    Name = "RotatingImage",
     Size = UDim2.new(0, 340, 0, 340),
     Position = UDim2.new(0.5, 0, 0.5, 0),
     AnchorPoint = Vector2.new(0.5, 0.5),
     BackgroundTransparency = 1,
     Image = "rbxassetid://97255732156702",
     ImageTransparency = 0.2,
-    ScaleType = Enum.ScaleType.Crop,
-    Rotation = 0,
     ZIndex = 1
 })
 
 Make("Corner", RotatingImage, UDim.new(0, 14))
 
-local imageRotationSpeed = 35
-local borderRotationSpeed = 12
-
 RunService.RenderStepped:Connect(function(dt)
-    RotatingImage.Rotation = (RotatingImage.Rotation + imageRotationSpeed * dt) % 360
-    BorderGradient.Rotation = (BorderGradient.Rotation + borderRotationSpeed * dt) % 360
+    Gradient.Rotation = (Gradient.Rotation + dt * 12) % 360
+    RotatingImage.Rotation = (RotatingImage.Rotation + dt * 35) % 360
 end)
 Make("Gradient", MainFrame, {
     Rotation = 45
