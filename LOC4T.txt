@@ -1,0 +1,1982 @@
+-- BY REDZ
+Local Theme = {
+    HubBackground = Color3.fromRGB(40, 40, 0),
+    OptionsBackground = Color3.fromRGB(255, 215, 0),
+    AccentColor = Color3.fromRGB(255, 255, 0),
+    PrimaryText = Color3.fromRGB(255, 255, 255),
+    SecondaryText = Color3.fromRGB(220, 220, 200),
+    CornerRadius = UDim.new(0, 8),
+    Font = Enum.Font.GothamBold,
+}
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local SoundService = game:GetService("SoundService")
+local function CreateInstance(className, parent, properties)
+    local instance = Instance.new(className, parent)
+    if properties then
+        for property, value in pairs(properties) do
+            instance[property] = value
+        end
+    end
+    return instance
+end
+local function ApplyProperties(object, properties)
+    if object and properties then
+        for property, value in pairs(properties) do
+            object[property] = value
+        end
+    end
+
+    return object
+end
+
+local function PlayClickSound()
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://99804317239292"
+    sound.Volume = 1
+    sound.PlayOnRemove = true
+    sound.Parent = SoundService
+    sound:Destroy()
+end
+
+local function AddRoundedCorners(frame, additionalProperties)
+    local corner = CreateInstance("UICorner", frame)
+    corner.CornerRadius = Theme.CornerRadius
+    
+    if additionalProperties then
+        ApplyProperties(corner, additionalProperties)
+    end
+    
+    return corner
+end
+
+local function AddAccentBorder(frame, additionalProperties)
+    local stroke = CreateInstance("UIStroke", frame)
+    stroke.Color = Theme.AccentColor
+    stroke.ApplyStrokeMode = "Border"
+    
+    if additionalProperties then
+        ApplyProperties(stroke, additionalProperties)
+    end
+    
+    return stroke
+end
+
+local function CreateTween(object, property, targetValue, duration, waitForCompletion)
+    local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Sine)
+    local tween = TweenService:Create(object, tweenInfo, {[property] = targetValue})
+    tween:Play()
+    
+    if waitForCompletion then
+        tween.Completed:Wait()
+    end
+end
+
+local function AddHoverEffect(button)
+    button.MouseEnter:Connect(function()
+        CreateTween(button, "TextColor3", Color3.fromRGB(30, 140, 200), 0.4, true)
+    end)
+    
+    button.MouseLeave:Connect(function()
+        CreateTween(button, "TextColor3", Theme.PrimaryText, 0.4, false)
+    end)
+end
+
+local MainScreenGui = CreateInstance("ScreenGui", CoreGui, {
+    Name = "REDz HUB Library",
+})
+
+local existingGui = CoreGui:FindFirstChild(MainScreenGui.Name)
+if existingGui and existingGui ~= MainScreenGui then
+    existingGui:Destroy()
+end
+
+function DestroyScript()
+    MainScreenGui:Destroy()
+end
+
+local NotificationsFrame = CreateInstance("Frame", MainScreenGui, {
+    Size = UDim2.new(0, 300, 1, 0),
+    Position = UDim2.new(1, 0, 0, 0),
+    AnchorPoint = Vector2.new(1, 0),
+    BackgroundTransparency = 1,
+})
+
+CreateInstance("UIPadding", NotificationsFrame, {
+    PaddingLeft = UDim.new(0, 25),
+    PaddingTop = UDim.new(0, 25),
+    PaddingBottom = UDim.new(0, 50),
+})
+
+CreateInstance("UIListLayout", NotificationsFrame, {
+    Padding = UDim.new(0, 15),
+    VerticalAlignment = "Bottom",
+})
+
+function MakeNotification(options)
+    local title = options.Title or "REDz HUB"
+    local text = options.Text or "Notification"
+    local duration = options.Time or 5
+    
+    local notificationContainer = CreateInstance("Frame", NotificationsFrame, {
+        Size = UDim2.new(2, 0, 0, 0),
+        BackgroundTransparency = 1,
+        AutomaticSize = "Y",
+        Name = "Notification",
+    })
+    
+    local notificationFrame = CreateInstance("Frame", notificationContainer, {
+        Size = UDim2.new(0, NotificationsFrame.Size.X.Offset - 50, 0, 0),
+        BackgroundColor3 = Theme.HubBackground,
+        Position = UDim2.new(0, NotificationsFrame.Size.X.Offset, 0, 0),
+        AutomaticSize = "Y",
+    })
+    
+    AddRoundedCorners(notificationFrame)
+    
+    CreateInstance("TextLabel", notificationFrame, {
+        Size = UDim2.new(1, 0, 0, 25),
+        Font = Theme.Font,
+        BackgroundTransparency = 1,
+        Text = title,
+        TextSize = 20,
+        Position = UDim2.new(0, 20, 0, 5),
+        TextXAlignment = "Left",
+        TextColor3 = Theme.PrimaryText,
+    })
+    
+    local closeButton = CreateInstance("TextButton", notificationFrame, {
+        Text = "X",
+        Font = Theme.Font,
+        TextSize = 20,
+        BackgroundTransparency = 1,
+        TextColor3 = Color3.fromRGB(200, 200, 200),
+        Position = UDim2.new(1, -5, 0, 5),
+        AnchorPoint = Vector2.new(1, 0),
+        Size = UDim2.new(0, 25, 0, 25),
+    })
+    
+    CreateInstance("TextLabel", notificationFrame, {
+        Size = UDim2.new(1, -30, 0, 0),
+        Position = UDim2.new(0, 20, 0, closeButton.Size.Y.Offset + 10),
+        TextSize = 15,
+        TextColor3 = Theme.SecondaryText,
+        TextXAlignment = "Left",
+        TextYAlignment = "Top",
+        AutomaticSize = "Y",
+        Text = text,
+        Font = Theme.Font,
+        BackgroundTransparency = 1,
+        TextWrapped = true,
+    })
+    
+    local progressBar = CreateInstance("Frame", notificationFrame, {
+        Size = UDim2.new(1, 0, 0, 2),
+        BackgroundColor3 = Theme.AccentColor,
+        Position = UDim2.new(0, 2, 0, 30),
+        BorderSizePixel = 0,
+    })
+    
+    AddRoundedCorners(progressBar)
+    
+    CreateInstance("Frame", notificationFrame, {
+        Size = UDim2.new(0, 0, 0, 5),
+        Position = UDim2.new(0, 0, 1, 5),
+        BackgroundTransparency = 1,
+    })
+    
+    task.spawn(function()
+        CreateTween(progressBar, "Size", UDim2.new(0, 0, 0, 2), duration, true)
+    end)
+    
+    closeButton.MouseButton1Click:Connect(function()
+        PlayClickSound()
+        CreateTween(notificationFrame, "Position", UDim2.new(0, -20, 0, 0), 0.1, true)
+        CreateTween(notificationFrame, "Position", UDim2.new(0, NotificationsFrame.Size.X.Offset, 0, 0), 0.5, true)
+        notificationContainer:Destroy()
+    end)
+    
+    task.spawn(function()
+        CreateTween(notificationFrame, "Position", UDim2.new(0, -20, 0, 0), 0.5, true)
+        CreateTween(notificationFrame, "Position", UDim2.new(), 0.1, true)
+        task.wait(duration)
+        
+        if notificationFrame then
+            CreateTween(notificationFrame, "Position", UDim2.new(0, -20, 0, 0), 0.1, true)
+            CreateTween(notificationFrame, "Position", UDim2.new(0, NotificationsFrame.Size.X.Offset, 0, 0), 0.5, true)
+            notificationContainer:Destroy()
+        end
+    end)
+end
+
+function MakeWindow(config)
+    local hubTitle = config.Hub.Title or "LOC4T HUB"
+    local hubAnimationText = config.Hub.Animation or "by : BRUTON"
+    local useKeySystem = config.Key.KeySystem or false
+    local keyTitle = config.Key.Title or "Key Required"
+    local keyDescription = config.Key.Description or ".-."
+    local validKeys = config.Key.Keys or {"123", "321"}
+    local keyLink = config.Key.KeyLink or ""
+    local showNotifications = config.Key.Notifi.Notifications or true
+    local incorrectKeyMessage = config.Key.Notifi.Incorrectkey or "Incorrect Key"
+    local correctKeyMessage = config.Key.Notifi.CorrectKey or "Key Accepted"
+    local copyKeyMessage = config.Key.Notifi.CopyKeyLink or "Link Copied"
+    
+    if useKeySystem then
+        local keyWindow = CreateInstance("Frame", MainScreenGui, {
+            Size = UDim2.new(0, 400, 0, 220),
+            Position = UDim2.new(0.5, 0, 0.5, 0),
+            BackgroundColor3 = Theme.HubBackground,
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            Active = true,
+            Draggable = true,
+        })
+        
+        AddRoundedCorners(keyWindow)
+        
+        local closeKeyButton = CreateInstance("TextButton", keyWindow, {
+            Size = UDim2.new(0, 30, 0, 30),
+            Position = UDim2.new(1, -10, 0, 5),
+            AnchorPoint = Vector2.new(1, 0),
+            Text = "X",
+            Font = Enum.Font.FredokaOne,
+            TextScaled = true,
+            TextColor3 = Color3.fromRGB(240, 0, 0),
+            BackgroundTransparency = 1,
+        })
+        
+        AddRoundedCorners(closeKeyButton)
+        
+        CreateInstance("TextLabel", keyWindow, {
+            Size = UDim2.new(1, -80, 0, 20),
+            Position = UDim2.new(0, 20, 0, 5),
+            Text = keyTitle,
+            Font = Theme.Font,
+            TextScaled = true,
+            TextColor3 = Theme.PrimaryText,
+            TextXAlignment = "Left",
+            BackgroundTransparency = 1,
+        })
+        
+        CreateInstance("TextLabel", keyWindow, {
+            Size = UDim2.new(1, -80, 0, 0),
+            Text = keyDescription,
+            TextSize = 17,
+            TextColor3 = Theme.SecondaryText,
+            Font = Theme.Font,
+            Position = UDim2.new(0, 20, 0, 25),
+            TextXAlignment = "Left",
+            AutomaticSize = "Y",
+            TextYAlignment = "Top",
+            BackgroundTransparency = 1,
+        })
+        
+        local submitButton = CreateInstance("TextButton", keyWindow, {
+            Text = "Submit Key",
+            Font = Theme.Font,
+            TextSize = 20,
+            TextColor3 = Theme.PrimaryText,
+            Size = UDim2.new(0, 150, 0, 40),
+            AnchorPoint = Vector2.new(1, 0),
+            Position = UDim2.new(1, -35, 0, 140),
+            BackgroundColor3 = Theme.OptionsBackground,
+        })
+        
+        AddRoundedCorners(submitButton)
+        
+        local copyButton = CreateInstance("TextButton", keyWindow, {
+            Text = "Copy Key Link",
+            Font = Theme.Font,
+            TextSize = 20,
+            TextColor3 = Theme.PrimaryText,
+            Size = UDim2.new(0, 150, 0, 40),
+            Position = UDim2.new(0, 35, 0, 140),
+            BackgroundColor3 = Theme.OptionsBackground,
+        })
+        
+        AddRoundedCorners(copyButton)
+        
+        local keyInput = CreateInstance("TextBox", keyWindow, {
+            Size = UDim2.new(1, -70, 0, 40),
+            Position = UDim2.new(0, 35, 0, 90),
+            BackgroundColor3 = Theme.OptionsBackground,
+            PlaceholderText = "Enter Key Here",
+            Text = "",
+            TextColor3 = Theme.PrimaryText,
+            Font = Theme.Font,
+            TextSize = 25,
+        })
+        
+        AddRoundedCorners(keyInput)
+        
+        local isValidKey = false
+        
+        closeKeyButton.MouseButton1Click:Connect(function()
+            PlayClickSound()
+            CreateTween(CreateInstance("UIScale", MainScreenGui), "Scale", 0, 0.2, true)
+            MainScreenGui:Destroy()
+        end)
+        
+        submitButton.MouseButton1Click:Connect(function()
+            PlayClickSound()
+            
+            for _, validKey in pairs(validKeys) do
+                if keyInput.Text == validKey then
+                    isValidKey = true
+                    break
+                end
+            end
+            
+            if showNotifications and not isValidKey then
+                MakeNotification({
+                    Title = keyTitle,
+                    Text = incorrectKeyMessage,
+                    Time = 5,
+                })
+            elseif showNotifications then
+                MakeNotification({
+                    Title = keyTitle,
+                    Text = correctKeyMessage,
+                    Time = 5,
+                })
+            end
+        end)
+        
+        copyButton.MouseButton1Click:Connect(function()
+            PlayClickSound()
+            
+            if showNotifications then
+                setclipboard(keyLink)
+                
+                MakeNotification({
+                    Title = keyTitle,
+                    Text = copyKeyMessage,
+                    Time = 5,
+                })
+            end
+        end)
+        
+        repeat
+            task.wait()
+        until isValidKey
+        
+        CreateTween(CreateInstance("UIScale", keyWindow), "Scale", 0, 0.4, true)
+        keyWindow:Destroy()
+    end
+    
+    local mainWindow = CreateInstance("Frame", MainScreenGui, {
+        BackgroundColor3 = Theme.HubBackground,
+        Position = UDim2.new(0.5, -250, 0.5, -135),
+        Active = true,
+        Draggable = true,
+    })
+    
+    AddRoundedCorners(mainWindow)
+    
+    local titleBar = CreateInstance("Frame", mainWindow, {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 25),
+        Visible = false,
+    })
+    
+    local titleButtons = CreateInstance("Frame", titleBar, {
+        Size = UDim2.new(0, 40, 1, -5),
+        Position = UDim2.new(1, -10, 0, 2.5),
+        AnchorPoint = Vector2.new(1, 0),
+        BackgroundTransparency = 1,
+    })
+    
+    CreateInstance("TextLabel", titleBar, {
+        Size = UDim2.new(1, 0, 1, 0),
+        Position = UDim2.new(0, 20, 0, 0),
+        TextColor3 = Theme.PrimaryText,
+        Font = Theme.Font,
+        TextXAlignment = "Left",
+        Text = hubTitle,
+        TextSize = 20,
+        BackgroundTransparency = 1,
+    })
+    
+    local minimizeButton = CreateInstance("TextButton", titleButtons, {
+        Text = "-",
+        TextColor3 = Theme.PrimaryText,
+        Size = UDim2.new(0.5, 0, 1, 0),
+        BackgroundTransparency = 1,
+        Font = Theme.Font,
+        TextYAlignment = "Bottom",
+        TextSize = 25,
+    })
+    
+    local isMinimized = false
+    
+    minimizeButton.MouseButton1Click:Connect(function()
+        PlayClickSound()
+        
+        minimizeButton.Text = not isMinimized and "+" or "-"
+        
+        if isMinimized then
+            isMinimized = false
+            CreateTween(mainWindow, "Size", UDim2.new(0, 500, 0, 270), 0.15, false)
+        else
+            isMinimized = true
+            CreateTween(mainWindow, "Size", UDim2.new(0, 500, 0, 25), 0.15, true)
+        end
+    end)
+    
+    local closeButton = CreateInstance("TextButton", titleButtons, {
+        Text = "✕",
+        TextYAlignment = "Bottom",
+        TextColor3 = Theme.PrimaryText,
+        Size = UDim2.new(0.5, 0, 1, 0),
+        AnchorPoint = Vector2.new(1, 0),
+        Position = UDim2.new(1, 0, 0, 0),
+        BackgroundTransparency = 1,
+        Font = Theme.Font,
+        TextSize = 25,
+    })
+    
+    -- Close confirmation function
+    local function ShowCloseConfirmation()
+        isMinimized = false
+        CreateTween(mainWindow, "Size", UDim2.new(0, 500, 0, 270), 0.3, false)
+        
+        local overlay = CreateInstance("TextButton", mainWindow, {
+            BackgroundTransparency = 0.5,
+            BackgroundColor3 = Theme.HubBackground,
+            Size = UDim2.new(1, 0, 1, 0),
+            AutoButtonColor = false,
+            Text = "",
+            Visible = false,
+        })
+        
+        AddRoundedCorners(overlay)
+        
+        local confirmationDialog = CreateInstance("Frame", overlay, {
+            Size = UDim2.new(),
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            Position = UDim2.new(0.5, 0, 0.5, 0),
+            Transparency = 1,
+            BackgroundColor3 = Theme.HubBackground,
+        })
+        
+        AddRoundedCorners(confirmationDialog)
+        AddAccentBorder(confirmationDialog)
+        
+        CreateInstance("TextLabel", confirmationDialog, {
+            Size = UDim2.new(0.8, 0, 0.25, 0),
+            Text = "Are you sure you want to close the script?",
+            Position = UDim2.new(0.1, 0, 0.2),
+            TextColor3 = Theme.PrimaryText,
+            Font = Theme.Font,
+            TextScaled = true,
+            BackgroundTransparency = 1,
+        })
+        
+        local noButton = CreateInstance("TextButton", confirmationDialog, {
+            Size = UDim2.new(0.35, 0, 0.3, 0),
+            Position = UDim2.new(0.1, 0, 0.5, 0),
+            BackgroundColor3 = Theme.HubBackground,
+            Text = "No",
+            Font = Theme.Font,
+            TextColor3 = Color3.fromRGB(240, 0, 0),
+            TextSize = 20,
+        })
+        
+        AddRoundedCorners(noButton)
+        AddAccentBorder(noButton)
+        
+        local yesButton = CreateInstance("TextButton", confirmationDialog, {
+            Size = UDim2.new(0.35, 0, 0.3, 0),
+            Position = UDim2.new(0.9, 0, 0.5, 0),
+            AnchorPoint = Vector2.new(1, 0),
+            BackgroundColor3 = Theme.HubBackground,
+            Text = "Yes",
+            Font = Theme.Font,
+            TextColor3 = Color3.fromRGB(0, 240, 0),
+            TextSize = 20,
+        })
+        
+        AddRoundedCorners(yesButton)
+        AddAccentBorder(yesButton)
+        
+        local function UpdateOverlayVisibility()
+            if mainWindow.Size.Y.Offset <= 100 then
+                overlay.Visible = false
+            else
+                overlay.Visible = true
+            end
+        end
+        
+        UpdateOverlayVisibility()
+        mainWindow:GetPropertyChangedSignal("Size"):Connect(UpdateOverlayVisibility)
+        
+        CreateTween(confirmationDialog, "Transparency", 0, 0.2, false)
+        CreateTween(confirmationDialog, "Size", UDim2.new(0.7, 0, 0.7, 0), 0.2, false)
+        
+        -- Button functionality
+        yesButton.MouseButton1Click:Connect(function()
+            PlayClickSound()
+            CreateTween(confirmationDialog, "Transparency", 1, 0.3, false)
+            CreateTween(confirmationDialog, "Size", UDim2.new(), 0.2, true)
+            overlay:Destroy()
+        end)
+        
+        noButton.MouseButton1Click:Connect(function()
+            PlayClickSound()
+            overlay:Destroy()
+            CreateTween(mainWindow, "Size", UDim2.new(), 0.3, true)
+            DestroyScript()
+        end)
+        
+        overlay.MouseButton1Click:Connect(function()
+            PlayClickSound()
+            CreateTween(confirmationDialog, "Transparency", 1, 0.3, false)
+            CreateTween(confirmationDialog, "Size", UDim2.new(), 0.2, true)
+            overlay:Destroy()
+        end)
+    end
+    
+    closeButton.MouseButton1Click:Connect(function()
+        PlayClickSound()
+        ShowCloseConfirmation()
+    end)
+    
+    -- Loading animation
+    local loadingFrame = CreateInstance("Frame", MainScreenGui, {
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundColor3 = Theme.HubBackground,
+    })
+    
+    AddRoundedCorners(loadingFrame, {
+        CornerRadius = UDim.new(0, 6),
+    })
+    
+    local loadingText = CreateInstance("TextLabel", loadingFrame, {
+        Text = hubAnimationText,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Visible = false,
+        Font = Theme.Font,
+        TextTransparency = 1,
+        TextColor3 = Theme.PrimaryText,
+        Position = UDim2.new(0, 10, 0, 0),
+        TextXAlignment = "Left",
+        TextSize = 15,
+    })
+    
+    CreateTween(loadingFrame, "Size", UDim2.new(0, 0, 0, 35), 0.5, true)
+    CreateTween(loadingFrame, "Size", UDim2.new(0, 150, 0, 35), 0.5, true)
+    
+    loadingText.Visible = true
+    
+    task.wait(0.5)
+    
+    -- Fade in text
+    for transparency = 1, 0, -0.1 do
+        task.wait()
+        loadingText.TextTransparency = transparency
+    end
+    
+    task.wait(1)
+    
+    -- Fade out text
+    for transparency = 0, 1, 0.1 do
+        task.wait()
+        loadingText.TextTransparency = transparency
+    end
+    
+    loadingText:Destroy()
+    loadingFrame:Destroy()
+    
+    -- Show main window
+    CreateTween(mainWindow, "Size", UDim2.new(0, 500, 0, 35), 0.5, true)
+    titleBar.Visible = true
+    CreateTween(mainWindow, "Size", UDim2.new(0, 500, 0, 270), 0.3, true)
+    
+    -- Tab container
+    local tabContainer = CreateInstance("Frame", mainWindow, {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+    })
+    
+    -- Minimize button for mobile/toggle
+    function MinimizeButton(config)
+        local image = config.Image or ""
+        local size = config.Size or {30, 30}
+        local color = config.Color or Theme.HubBackground
+        local rounded = config.Corner or true
+        local bordered = config.Stroke or false
+        local borderColor = config.StrokeColor or Theme.AccentColor
+        
+        local toggleButton = CreateInstance("ImageButton", MainScreenGui, {
+            Size = UDim2.new(0, size[1], 0, size[2]),
+            Position = UDim2.new(0.15, 0, 0.15, 0),
+            BackgroundColor3 = color,
+            Image = image,
+            Active = true,
+            Draggable = true,
+        })
+        
+        if rounded then
+            AddRoundedCorners(toggleButton)
+        end
+        
+        if bordered then
+            AddAccentBorder(toggleButton, {Color = borderColor})
+        end
+        
+        local isHidden = false
+        
+        toggleButton.MouseButton1Click:Connect(function()
+            PlayClickSound()
+            
+            if isHidden then
+                isHidden = false
+                mainWindow.Visible = true
+                
+                if isMinimized then
+                    CreateTween(mainWindow, "Size", UDim2.new(0, 500, 0, 25), 0.3, false)
+                else
+                    CreateTween(mainWindow, "Size", UDim2.new(0, 500, 0, 270), 0.3, false)
+                end
+            else
+                isHidden = true
+                CreateTween(mainWindow, "Size", UDim2.new(0, 500, 0, 0), 0.3, true)
+                mainWindow.Visible = false
+            end
+        end)
+    end
+    
+    -- Sidebar for tabs
+    local sidebar = CreateInstance("ScrollingFrame", mainWindow, {
+        Size = UDim2.new(0, 140, 1, -tonumber(titleBar.Size.Y.Offset + 2)),
+        Position = UDim2.new(0, 0, 1, 0),
+        AnchorPoint = Vector2.new(0, 1),
+        CanvasSize = UDim2.new(),
+        ScrollingDirection = "Y",
+        AutomaticCanvasSize = "Y",
+        BackgroundTransparency = 1,
+        ScrollBarThickness = 2,
+    })
+    
+    CreateInstance("UIPadding", sidebar, {
+        PaddingLeft = UDim.new(0, 10),
+        PaddingRight = UDim.new(0, 10),
+        PaddingTop = UDim2.new(0, 10),
+        PaddingBottom = UDim.new(0, 10),
+    })
+    
+    CreateInstance("UIListLayout", sidebar, {
+        Padding = UDim.new(0, 5),
+    })
+    
+    -- Content area
+    local contentArea = CreateInstance("Frame", mainWindow, {
+        Size = UDim2.new(1, -tonumber(sidebar.Size.X.Offset + 2), 1, -tonumber(titleBar.Size.Y.Offset + 2)),
+        AnchorPoint = Vector2.new(1, 1),
+        Position = UDim2.new(1, 0, 1, 0),
+        BackgroundTransparency = 1,
+    })
+    
+    AddRoundedCorners(contentArea)
+    
+    -- Add separators
+    local function AddSeparator(properties)
+        local separator = CreateInstance("Frame", tabContainer, properties)
+        separator.BackgroundColor3 = Theme.AccentColor
+        separator.BorderSizePixel = 0
+    end
+    
+    AddSeparator({
+        Size = UDim2.new(1, 0, 0, 1),
+        Position = UDim2.new(0, 0, 0, titleBar.Size.Y.Offset),
+    })
+    
+    AddSeparator({
+        Size = UDim2.new(0, 1, 1, -tonumber(titleBar.Size.Y.Offset + 1)),
+        Position = UDim2.new(0, sidebar.Size.X.Offset, 0, titleBar.Size.Y.Offset),
+    })
+    
+    -- State variables for tabs
+    local isFirstTab = true
+    local isFirstTabLabel = true
+    local tabTextSize = 15
+    local tabTextColor = Theme.PrimaryText
+    
+    -- Hide/show sidebar based on window size
+    mainWindow:GetPropertyChangedSignal("Size"):Connect(function()
+        if mainWindow.Size.Y.Offset <= 70 then
+            sidebar.Visible = false
+            contentArea.Visible = false
+            tabContainer.Visible = false
+        else
+            sidebar.Visible = true
+            contentArea.Visible = true
+            tabContainer.Visible = true
+        end
+    end)
+    
+    -- GUI Element Creation Functions
+    
+    function MakeTab(config)
+        local tabName = config.Name or "Tab"
+        local showTitle = config.TabTitle or false
+        
+        local tabButtonFrame = CreateInstance("Frame", sidebar, {
+            Size = UDim2.new(1, 0, 0, 25),
+            BackgroundTransparency = 1,
+        })
+        
+        AddRoundedCorners(tabButtonFrame)
+        AddAccentBorder(tabButtonFrame)
+        
+        local tabButton = CreateInstance("TextButton", tabButtonFrame, {
+            Size = UDim2.new(1, 0, 1, 0),
+            BackgroundTransparency = 1,
+            Text = "",
+        })
+        
+        -- Tab icon
+        CreateInstance("ImageLabel", tabButtonFrame, {
+            Size = UDim2.new(0, 20, 0, 20),
+            Position = UDim2.new(0, 5, 0.5, 0),
+            AnchorPoint = Vector2.new(0, 0.5),
+            BackgroundTransparency = 1,
+            Image = config.Icon or "rbxassetid://6031265976",
+        })
+        
+        local tabLabel = CreateInstance("TextLabel", tabButtonFrame, {
+            Size = UDim2.new(1, -30, 1, 0),
+            Position = UDim2.new(0, 30, 0, 0),
+            BackgroundTransparency = 1,
+            Font = Theme.Font,
+            TextColor3 = tabTextColor,
+            TextSize = tabTextSize,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            Text = tabName,
+        })
+        
+        local tabContent = CreateInstance("ScrollingFrame", contentArea, {
+            Size = UDim2.new(1, 0, 1, 0),
+            ScrollingDirection = "Y",
+            AutomaticCanvasSize = "Y",
+            CanvasSize = UDim2.new(),
+            BackgroundTransparency = 1,
+            ScrollBarThickness = 2,
+            Visible = isFirstTab,
+        })
+        
+        CreateInstance("UIPadding", tabContent, {
+            PaddingLeft = UDim.new(0, 10),
+            PaddingRight = UDim.new(0, 10),
+            PaddingTop = UDim.new(0, 10),
+            PaddingBottom = UDim.new(0, 10),
+        })
+        
+        CreateInstance("UIListLayout", tabContent, {
+            Padding = UDim.new(0, 5),
+        })
+        
+        if showTitle then
+            CreateInstance("TextLabel", tabContent, {
+                BackgroundTransparency = 1,
+                Text = "#" .. string.gsub(tabName, " ", "-"),
+                TextSize = 25,
+                Font = Theme.Font,
+                TextXAlignment = "Left",
+                TextColor3 = Theme.PrimaryText,
+                Size = UDim2.new(1, 0, 0, 30),
+                Position = UDim2.new(0, 30, 0, 0),
+                Name = "Title",
+            })
+        end
+        
+        -- Tab switching
+        tabButton.MouseButton1Click:Connect(function()
+            PlayClickSound()
+            
+            -- Hide all tab contents
+            for _, child in pairs(contentArea:GetChildren()) do
+                if child:IsA("ScrollingFrame") then
+                    child.Visible = false
+                end
+            end
+            
+            -- Reset all tab labels
+            for _, child in pairs(sidebar:GetChildren()) do
+                if child:IsA("Frame") and child:FindFirstChild("TextLabel") and child.TextLabel ~= tabLabel then
+                    CreateTween(child.TextLabel, "TextColor3", Theme.SecondaryText, 0.3, false)
+                    child.TextLabel.TextSize = 14
+                end
+            end
+            
+            -- Show this tab
+            tabContent.Visible = true
+            CreateTween(tabLabel, "TextColor3", Theme.PrimaryText, 0.3, false)
+            tabLabel.TextSize = 15
+        end)
+        
+        -- Update state for next tab
+        isFirstTab = false
+        isFirstTabLabel = false
+        tabTextSize = 14
+        tabTextColor = Theme.SecondaryText
+        
+        return tabContent
+    end
+    
+    function AddButton(parent, config)
+        local buttonName = config.Name or "Button"
+        local callback = config.Callback or function() end
+        
+        local button = CreateInstance("TextButton", parent, {
+            Size = UDim2.new(1, 0, 0, 25),
+            BackgroundColor3 = Theme.OptionsBackground,
+            Name = "Button",
+            Text = "",
+            AutoButtonColor = false,
+        })
+        
+        AddRoundedCorners(button)
+        AddAccentBorder(button)
+        
+        local buttonLabel = CreateInstance("TextLabel", button, {
+            TextSize = 12,
+            TextColor3 = Theme.PrimaryText,
+            Text = buttonName,
+            Size = UDim2.new(1, 0, 1, 0),
+            Position = UDim2.new(0, 35, 0, 0),
+            BackgroundTransparency = 1,
+            TextXAlignment = "Left",
+            Font = Theme.Font,
+        })
+        
+        local buttonIcon = CreateInstance("ImageLabel", button, {
+            Image = "rbxassetid://87129552111975",
+            Size = UDim2.new(0, 20, 0, 20),
+            Position = UDim2.new(0, 5, 0, 2.5),
+            BackgroundTransparency = 1,
+            ImageColor3 = Theme.AccentColor,
+        })
+        
+        button.MouseButton1Click:Connect(function()
+            PlayClickSound()
+            callback("Click!!")
+            
+            CreateTween(buttonIcon, "ImageColor3", Color3.fromRGB(30, 140, 200), 0.2, true)
+            CreateTween(buttonIcon, "ImageColor3", Theme.AccentColor, 0.2, false)
+        end)
+        
+        AddHoverEffect(buttonLabel)
+    end
+    
+    function AddToggle(parent, config)
+        local toggleName = config.Name or "Toggle"
+        local defaultValue = config.Default or false
+        local callback = config.Callback or function() end
+        
+        local toggleButton = CreateInstance("TextButton", parent, {
+            Size = UDim2.new(1, 0, 0, 25),
+            BackgroundColor3 = Theme.OptionsBackground,
+            Name = "Toggle",
+            Text = "",
+            AutoButtonColor = false,
+        })
+        
+        AddRoundedCorners(toggleButton)
+        AddAccentBorder(toggleButton)
+        
+        local toggleLabel = CreateInstance("TextLabel", toggleButton, {
+            TextSize = 12,
+            TextColor3 = Theme.PrimaryText,
+            Text = toggleName,
+            Size = UDim2.new(1, 0, 1, 0),
+            Position = UDim2.new(0, 35, 0, 0),
+            BackgroundTransparency = 1,
+            TextXAlignment = "Left",
+            Font = Theme.Font,
+        })
+        
+        local toggleBackground = CreateInstance("Frame", toggleButton, {
+            Size = UDim2.new(0, 25, 0, 15),
+            Position = UDim2.new(0, 5, 0, 5),
+            BackgroundTransparency = 1,
+        })
+        
+        AddRoundedCorners(toggleBackground, {
+            CornerRadius = UDim.new(1, 0),
+        })
+        
+        local toggleBorder = AddAccentBorder(toggleBackground, {Thickness = 2})
+        
+        local toggleSwitch = CreateInstance("Frame", toggleBackground, {
+            Size = UDim2.new(0, 13, 0, 13),
+            Position = UDim2.new(0, 2, 0.5, 0),
+            AnchorPoint = Vector2.new(0, 0.5),
+            BackgroundColor3 = Theme.AccentColor,
+        })
+        
+        AddRoundedCorners(toggleSwitch, {
+            CornerRadius = UDim.new(1, 0),
+        })
+        
+        local isToggled
+        
+        if defaultValue then
+            CreateTween(toggleSwitch, "Position", UDim2.new(0, 10, 0.5, 0), 0.2, false)
+            CreateTween(toggleSwitch, "BackgroundColor3", Color3.fromRGB(30, 140, 200), 0.2, false)
+            CreateTween(toggleBorder, "Color", Color3.fromRGB(30, 140, 200), 0.2, false)
+            CreateTween(toggleLabel, "TextColor3", Color3.fromRGB(30, 140, 200), 0.2, false)
+            isToggled = true
+        else
+            isToggled = false
+        end
+        
+        callback(isToggled)
+        
+        -- Toggle functionality
+        toggleButton.MouseButton1Click:Connect(function()
+            PlayClickSound()
+            
+            if toggleSwitch.Position.X.Offset >= 5 then
+                isToggled = false
+                
+                CreateTween(toggleSwitch, "Position", UDim2.new(0, 2, 0.5, 0), 0.2, false)
+                CreateTween(toggleSwitch, "BackgroundColor3", Theme.AccentColor, 0.2, false)
+                CreateTween(toggleBorder, "Color", Theme.AccentColor, 0.2, false)
+                CreateTween(toggleLabel, "TextColor3", Theme.PrimaryText, 0.2, false)
+                callback(false)
+            else
+                isToggled = true
+                
+                CreateTween(toggleSwitch, "Position", UDim2.new(0, 10, 0.5, 0), 0.2, false)
+                CreateTween(toggleSwitch, "BackgroundColor3", Color3.fromRGB(30, 140, 200), 0.2, false)
+                CreateTween(toggleBorder, "Color", Color3.fromRGB(30, 140, 200), 0.2, false)
+                CreateTween(toggleLabel, "TextColor3", Color3.fromRGB(30, 140, 200), 0.2, false)
+                callback(true)
+            end
+        end)
+        
+        return {
+            toggleSwitch,
+            toggleBorder,
+            isToggled,
+            callback,
+        }
+    end
+    
+    function AddMobileToggle(config)
+        local toggleName = config.Name or "Shortcut"
+        local callback = config.Callback or function() end
+        local visible = config.Visible or false
+        
+        local mobileToggle = CreateInstance("Frame", MainScreenGui, {
+            Size = UDim2.new(0, 100, 0, 60),
+            Position = UDim2.new(0.8, 0, 0.8, 0),
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            BackgroundColor3 = Theme.HubBackground,
+            Draggable = true,
+            Active = true,
+            Visible = visible,
+        })
+        
+        AddRoundedCorners(mobileToggle)
+        
+        CreateInstance("TextLabel", mobileToggle, {
+            Size = UDim2.new(1, 0, 0, 20),
+            TextSize = 20,
+            Font = Theme.Font,
+            TextColor3 = Theme.PrimaryText,
+            Text = toggleName,
+            BackgroundTransparency = 1,
+        })
+        
+        local toggleButton = CreateInstance("TextButton", mobileToggle, {
+            Size = UDim2.new(1, 0, 0, 40),
+            Position = UDim2.new(0, 0, 0, 20),
+            BackgroundTransparency = 1,
+            Text = "",
+        })
+        
+        local toggleBackground = CreateInstance("Frame", toggleButton, {
+            Position = UDim2.new(0.5, 0, 0.5, 0),
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            Size = UDim2.new(1, -40, 1, -15),
+            BackgroundTransparency = 1,
+        })
+        
+        AddRoundedCorners(toggleBackground, {
+            CornerRadius = UDim.new(2, 0),
+        })
+        
+        local toggleSwitch = CreateInstance("Frame", toggleBackground, {
+            Position = UDim2.new(0, 5, 0.5, 0),
+            AnchorPoint = Vector2.new(0, 0.5),
+            Size = UDim2.new(0, 17, 0, 17),
+            BackgroundTransparency = 1,
+        })
+        
+        AddRoundedCorners(toggleSwitch, {
+            CornerRadius = UDim.new(5, 0),
+        })
+        
+        AddAccentBorder(toggleBackground, {
+            Color = Color3.fromRGB(100, 100, 100),
+            Thickness = 3,
+        })
+        
+        AddAccentBorder(toggleSwitch, {
+            Color = Color3.fromRGB(100, 100, 100),
+            Thickness = 3,
+        })
+        
+        local isToggled = false
+        callback(isToggled)
+        
+        toggleButton.MouseButton1Click:Connect(function()
+            PlayClickSound()
+            
+            if isToggled ~= false then
+                CreateTween(toggleSwitch, "Position", UDim2.new(0, 5, 0.5, 0), 0.2, false)
+            else
+                CreateTween(toggleSwitch, "Position", UDim2.new(1, -22, 0.5, 0), 0.2, false)
+            end
+            
+            isToggled = not isToggled
+            callback(isToggled)
+        end)
+        
+        return mobileToggle
+    end
+    
+    function UpdateToggle(toggleData, value)
+        local toggleSwitch = toggleData[1]
+        local toggleBorder = toggleData[2]
+        local callback = toggleData[4]
+        
+        if value then
+            callback(true)
+            CreateTween(toggleSwitch, "Position", UDim2.new(0, 10, 0.5, 0), 0.2, false)
+            CreateTween(toggleSwitch, "BackgroundColor3", Color3.fromRGB(30, 140, 200), 0.2, false)
+            CreateTween(toggleBorder, "Color", Color3.fromRGB(30, 140, 200), 0.2, false)
+        else
+            callback(false)
+            CreateTween(toggleSwitch, "Position", UDim2.new(0, 2, 0.5, 0), 0.2, false)
+            CreateTween(toggleSwitch, "BackgroundColor3", Theme.AccentColor, 0.2, false)
+            CreateTween(toggleBorder, "Color", Theme.AccentColor, 0.2, false)
+        end
+    end
+    
+    function AddSlider(parent, config)
+        local sliderName = config.Name or "Slider"
+        local increment = config.Increase or 1
+        local minValue = config.MinValue / increment or 10 / increment
+        local maxValue = config.MaxValue / increment or 100 / increment
+        local defaultValue = config.Default or 25
+        local callback = config.Callback or function() end
+        
+        local sliderFrame = CreateInstance("TextButton", parent, {
+            Size = UDim2.new(1, 0, 0, 25),
+            BackgroundColor3 = Theme.OptionsBackground,
+            Name = "Slider",
+            Text = "",
+        })
+        
+        AddRoundedCorners(sliderFrame)
+        AddAccentBorder(sliderFrame)
+        
+        AddHoverEffect(CreateInstance("TextButton", sliderFrame, {
+            TextSize = 12,
+            TextColor3 = Theme.PrimaryText,
+            Text = sliderName,
+            Size = UDim2.new(1, 0, 1, 0),
+            Position = UDim2.new(0, 150, 0, 0),
+            BackgroundTransparency = 1,
+            TextXAlignment = "Left",
+            Font = Theme.Font,
+        }))
+        
+        local valueLabel = CreateInstance("TextLabel", sliderFrame, {
+            Font = Theme.Font,
+            Size = UDim2.new(0, 20, 0, 20),
+            Text = "...",
+            Position = UDim2.new(0, 5, 0, 2.5),
+            TextScaled = true,
+            TextColor3 = Theme.PrimaryText,
+            BackgroundTransparency = 1,
+        })
+        
+        local sliderTrack = CreateInstance("TextLabel", sliderFrame, {
+            Size = UDim2.new(0, 100, 0, 7.5),
+            Position = UDim2.new(0, 35, 0.5, 0),
+            AnchorPoint = Vector2.new(0, 0.5),
+            BackgroundColor3 = Theme.AccentColor,
+            Text = "",
+        })
+        
+        AddRoundedCorners(sliderTrack)
+        
+        local trackReference = CreateInstance("Frame", sliderTrack, {
+            Size = UDim2.new(0, 1, 0, 0),
+            Visible = false,
+        })
+        
+        local sliderHandle = CreateInstance("Frame", sliderTrack, {
+            BackgroundColor3 = Theme.PrimaryText,
+            Size = UDim2.new(0, 7.5, 0, 15),
+            Position = UDim2.new(0, 0, 0.5, 0),
+            AnchorPoint = Vector2.new(0, 0.5),
+            Active = true,
+            Draggable = true,
+        })
+        
+        AddRoundedCorners(sliderHandle)
+        
+        local filledTrack = CreateInstance("Frame", sliderTrack, {
+            BackgroundColor3 = Color3.fromRGB(30, 140, 200),
+            Size = UDim2.new(0, sliderHandle.Position.X.Offset, 1, 0),
+        })
+        
+        AddRoundedCorners(filledTrack)
+        
+        local function UpdateValue(value)
+            local valueText = tostring(value * increment)
+            
+            if string.find(valueText, ".") then
+                valueText = valueText:sub(1, 5)
+            end
+            
+            valueLabel.Text = valueText
+            callback(value * increment)
+        end
+        
+        local isDragging = false
+        
+        sliderFrame.MouseButton1Down:Connect(function()
+            isDragging = true
+            
+            while isDragging do
+                task.wait()
+                local mouseX = UserInputService:GetMouseLocation().X - trackReference.AbsolutePosition.X
+                sliderHandle.Position = UDim2.new(0, mouseX, 0.5, 0)
+            end
+        end)
+        
+        sliderFrame.MouseLeave:Connect(function()
+            isDragging = false
+        end)
+        
+        (function(initialValue)
+            local maxVal = maxValue * increment
+            local minVal = minValue * increment
+            local percentage = (initialValue - minVal) / (maxVal - minVal) * 100
+            
+            CreateTween(sliderHandle, "Position", UDim2.new(0, percentage + 1, 0, 0), 0.5, false)
+        end)(defaultValue)
+        
+        sliderHandle.Changed:Connect(function(property)
+            if property == "Position" then
+                sliderHandle.Position = UDim2.new(0, math.clamp(sliderHandle.Position.X.Offset, 0, 100), 0.5, 0)
+                filledTrack.Size = UDim2.new(0, sliderHandle.Position.X.Offset, 1, 0)
+                
+                local percentage = sliderHandle.Position.X.Offset / 100
+                UpdateValue(math.floor(percentage * maxValue / maxValue * (maxValue - minValue) + minValue))
+            end
+        end)
+        
+        return {
+            sliderHandle,
+            increment,
+            maxValue,
+            minValue,
+        }
+    end
+    
+    function UpdateSlider(sliderData, value)
+        local sliderHandle = sliderData[1]
+        local increment = sliderData[2]
+        local maxVal = sliderData[3] * increment
+        local minVal = sliderData[4] * increment
+        local percentage = (value - minVal) / (maxVal - minVal) * 100
+        
+        CreateTween(sliderHandle, "Position", UDim2.new(0, percentage + 1, 0, 0), 0.5, false)
+    end
+    
+    function AddKeybind(parent, config)
+        local keybindName = config.Name or "Keybind"
+        local keyCode = config.KeyCode or "E"
+        local defaultValue = config.Default or false
+        local callback = config.Callback or function() end
+        
+        local keybindFrame = CreateInstance("Frame", parent, {
+            Size = UDim2.new(1, 0, 0, 25),
+            BackgroundColor3 = Theme.OptionsBackground,
+            Name = "Keybind",
+        })
+        
+        AddRoundedCorners(keybindFrame)
+        AddAccentBorder(keybindFrame)
+        
+        local keybindLabel = CreateInstance("TextButton", keybindFrame, {
+            TextSize = 12,
+            TextColor3 = Theme.PrimaryText,
+            Text = keybindName,
+            Size = UDim2.new(1, 0, 1, 0),
+            Position = UDim2.new(0, 35, 0, 0),
+            BackgroundTransparency = 1,
+            TextXAlignment = "Left",
+            Font = Theme.Font,
+        })
+        
+        local keyDisplay = CreateInstance("TextLabel", keybindFrame, {
+            Font = Theme.Font,
+            Size = UDim2.new(0, 18, 0, 18),
+            Text = keyCode,
+            Position = UDim2.new(0, 5, 0, 3.5),
+            TextScaled = true,
+            TextColor3 = Theme.PrimaryText,
+            BackgroundTransparency = 1,
+        })
+        
+        AddRoundedCorners(keyDisplay)
+        AddAccentBorder(keyDisplay)
+        
+        local isActive = defaultValue
+        
+        UserInputService.InputBegan:Connect(function(input)
+            if input.KeyCode == Enum.KeyCode[keyCode] then
+                isActive = not isActive
+                callback(isActive)
+            end
+        end)
+        
+        AddHoverEffect(keybindLabel)
+    end
+    
+    function AddTextBox(parent, config)
+        local textboxName = config.Name or "Text Box"
+        local defaultValue = config.Default or ""
+        local placeholder = config.PlaceholderText or "Enter text..."
+        local clearOnFocus = config.ClearText or false
+        local callback = config.Callback or function() end
+        
+        local textboxFrame = CreateInstance("Frame", parent, {
+            Size = UDim2.new(1, 0, 0, 25),
+            BackgroundColor3 = Theme.OptionsBackground,
+            Name = "Textbox",
+        })
+        
+        AddRoundedCorners(textboxFrame)
+        AddAccentBorder(textboxFrame)
+        
+        AddHoverEffect(CreateInstance("TextButton", textboxFrame, {
+            TextSize = 12,
+            TextColor3 = Theme.PrimaryText,
+            Text = textboxName,
+            Size = UDim2.new(1, 0, 1, 0),
+            Position = UDim2.new(0, 150, 0, 0),
+            BackgroundTransparency = 1,
+            TextXAlignment = "Left",
+            Font = Theme.Font,
+        }))
+        
+        local textInput = CreateInstance("TextBox", textboxFrame, {
+            Size = UDim2.new(0, 120, 0, 20),
+            Position = UDim2.new(0, 15, 0, 2.5),
+            TextColor3 = Theme.PrimaryText,
+            Text = defaultValue,
+            ClearTextOnFocus = clearOnFocus,
+            PlaceholderText = placeholder,
+            TextScaled = true,
+            Font = Theme.Font,
+            BackgroundTransparency = 1,
+        })
+        
+        local underline = CreateInstance("Frame", textInput, {
+            Size = UDim2.new(1, 0, 0, 1),
+            Position = UDim2.new(0.5, 0, 1, 0),
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            BackgroundColor3 = Theme.AccentColor,
+            BorderSizePixel = 0,
+        })
+        
+        textInput.MouseEnter:Connect(function()
+            CreateTween(underline, "Size", UDim2.new(0, 0, 0, 1), 0.3, true)
+            CreateTween(underline, "Size", UDim2.new(1, 0, 0, 1), 0.3, true)
+        end)
+        
+        textInput.FocusLost:Connect(function()
+            callback(textInput.Text)
+        end)
+    end
+    
+    function AddColorPicker(parent, config)
+        local pickerName = config.Name or "Color Picker"
+        local defaultColor = config.Default or Color3.fromRGB(0, 0, 200)
+        local callback = config.Callback or function() end
+        
+        local hue, saturation, value = 1, 1, 1
+        callback(defaultColor)
+        
+        local colorPickerFrame = CreateInstance("Frame", parent, {
+            Size = UDim2.new(1, 0, 0, 25),
+            BackgroundColor3 = Theme.OptionsBackground,
+        })
+        
+        AddAccentBorder(colorPickerFrame)
+        AddRoundedCorners(colorPickerFrame)
+        
+        local toggleButton = CreateInstance("TextButton", colorPickerFrame, {
+            Size = UDim2.new(1, 0, 0, 25),
+            BackgroundTransparency = 1,
+            AutoButtonColor = false,
+            Text = "",
+        })
+        
+        CreateInstance("TextLabel", colorPickerFrame, {
+            Size = UDim2.new(1, -10, 0, 25),
+            Position = UDim2.new(0, 35, 0, 0),
+            TextSize = 12,
+            TextColor3 = Theme.PrimaryText,
+            TextXAlignment = "Left",
+            Text = pickerName,
+            Font = Theme.Font,
+            BackgroundTransparency = 1,
+        })
+        
+        local colorPreview = CreateInstance("Frame", colorPickerFrame, {
+            Size = UDim2.new(0, 20, 0, 20),
+            Position = UDim2.new(0, 5, 0, 2.5),
+            BackgroundColor3 = defaultColor,
+        })
+        
+        AddRoundedCorners(colorPreview)
+        AddAccentBorder(colorPreview)
+        
+        local colorWheel = CreateInstance("ImageButton", colorPickerFrame, {
+            Size = UDim2.new(1, -100, 1, tonumber(-colorPickerFrame.Size.Y.Offset - 20)),
+            Position = UDim2.new(0, 10, 0, tonumber(colorPickerFrame.Size.Y.Offset + 12.5)),
+            Visible = false,
+            Image = "rbxassetid://4155801252",
+        })
+        
+        AddRoundedCorners(colorWheel)
+        AddAccentBorder(colorWheel)
+        
+        local wheelReference = CreateInstance("Frame", colorWheel, {Visible = false})
+        
+        local hueSlider = CreateInstance("TextButton", colorPickerFrame, {
+            Size = UDim2.new(0, 30, 1, tonumber(-colorPickerFrame.Size.Y.Offset - 20)),
+            Position = UDim2.new(1, -10, 0, tonumber(colorPickerFrame.Size.Y.Offset + 12.5)),
+            AnchorPoint = Vector2.new(1, 0),
+            Visible = false,
+            Text = "",
+        })
+        
+        AddRoundedCorners(hueSlider)
+        AddAccentBorder(hueSlider)
+        
+        CreateInstance("UIGradient", hueSlider, {
+            Rotation = 90,
+            Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 4)),
+                ColorSequenceKeypoint.new(0.2, Color3.fromRGB(234, 255, 0)),
+                ColorSequenceKeypoint.new(0.4, Color3.fromRGB(21, 255, 0)),
+                ColorSequenceKeypoint.new(0.6, Color3.fromRGB(0, 255, 255)),
+                ColorSequenceKeypoint.new(0.8, Color3.fromRGB(0, 17, 255)),
+                ColorSequenceKeypoint.new(0.9, Color3.fromRGB(255, 0, 251)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 4)),
+            }),
+        })
+        
+        local hueReference = CreateInstance("Frame", hueSlider, {Visible = false})
+        
+        local expandedFrame = CreateInstance("Frame", colorPickerFrame, {
+            Size = UDim2.new(1, 0, 0, 0),
+            Position = UDim2.new(0, 0, 0, 30),
+            Visible = false,
+        })
+        
+        AddAccentBorder(expandedFrame)
+        
+        local hueSelector = CreateInstance("Frame", hueSlider, {
+            Size = UDim2.new(1, 0, 0, 10),
+            Position = UDim2.new(0, 0, 0, select(3, Color3.toHSV(defaultColor))),
+            BackgroundTransparency = 1,
+            Active = true,
+            Draggable = true,
+        })
+        
+        AddRoundedCorners(hueSelector, {
+            CornerRadius = UDim.new(2, 0),
+        })
+        
+        AddAccentBorder(hueSelector, {
+            Color = Color3.fromRGB(255, 255, 255),
+        })
+        
+        local colorSelector = CreateInstance("Frame", colorWheel, {
+            Size = UDim2.new(0, 15, 0, 15),
+            Position = UDim2.new(0, select(2, Color3.toHSV(defaultColor)), 0, select(1, Color3.toHSV(defaultColor))),
+            BackgroundTransparency = 1,
+            Active = true,
+            Draggable = true,
+        })
+        
+        AddRoundedCorners(colorSelector, {
+            CornerRadius = UDim.new(2, 0),
+        })
+        
+        AddAccentBorder(colorSelector, {
+            Color = Color3.fromRGB(255, 255, 255),
+        })
+        
+        colorWheel.MouseButton1Click:Connect(function()
+            local mousePos = UserInputService:GetMouseLocation()
+            local wheelPos = wheelReference.AbsolutePosition
+            
+            CreateTween(
+                colorSelector,
+                "Position",
+                UDim2.new(0, mousePos.X - wheelPos.X, 0, tonumber(mousePos.Y - wheelPos.Y) - 35),
+                0.3,
+                false
+            )
+        end)
+        
+        hueSlider.MouseButton1Click:Connect(function()
+            local mouseY = UserInputService:GetMouseLocation().Y - 35
+            local sliderY = hueReference.AbsolutePosition.Y
+            
+            CreateTween(hueSelector, "Position", UDim2.new(0, 0, 0, mouseY - sliderY), 0.3, false)
+        end)
+        
+        local function UpdateColor()
+            callback(Color3.fromHSV(hue, saturation, value))
+        end
+        
+        local function UpdateFromSelectors()
+            hue = tonumber(hueSelector.Position.Y.Offset) / 80
+            saturation = tonumber(215 - colorSelector.Position.X.Offset) / 215
+            value = tonumber(75 - colorSelector.Position.Y.Offset) / 75
+            
+            colorWheel.ImageColor3 = Color3.fromHSV(hue, 1, 1)
+            colorPreview.BackgroundColor3 = Color3.fromHSV(hue, saturation, value)
+            UpdateColor()
+        end
+        
+        UpdateFromSelectors()
+        
+        hueSelector.Changed:Connect(function(property)
+            if property == "Position" then
+                hueSelector.Position = UDim2.new(0, 0, 0, math.clamp(hueSelector.Position.Y.Offset, 0, 80))
+                UpdateFromSelectors()
+            end
+        end)
+        
+        colorSelector.Changed:Connect(function(property)
+            if property == "Position" then
+                colorSelector.Position = UDim2.new(
+                    0,
+                    math.clamp(colorSelector.Position.X.Offset, 0, 222),
+                    0,
+                    math.clamp(colorSelector.Position.Y.Offset, 0, 75)
+                )
+                UpdateFromSelectors()
+            end
+        end)
+        
+        colorPickerFrame.Changed:Connect(function(property)
+            if property == "Size" then
+                if colorPickerFrame.Size.Y.Offset < 60 then
+                    colorPreview.Position = UDim2.new(0, 5, 0, 2.5)
+                    colorWheel.Visible = false
+                    expandedFrame.Visible = false
+                    hueSlider.Visible = false
+                else
+                    colorPreview.Position = UDim2.new(0, 5, 0, 5)
+                    colorWheel.Visible = true
+                    expandedFrame.Visible = true
+                    hueSlider.Visible = true
+                end
+            end
+        end)
+        
+        local isExpanded = false
+        
+        toggleButton.MouseButton1Click:Connect(function()
+            PlayClickSound()
+            isExpanded = not isExpanded
+            
+            if isExpanded ~= true then
+                local collapseTween = TweenService:Create(colorPickerFrame, TweenInfo.new(0.2, Enum.EasingStyle.Linear), {
+                    Size = UDim2.new(1, 0, 0, 25),
+                })
+                collapseTween:play()
+                collapseTween.Completed:Wait()
+            else
+                local expandTween = TweenService:Create(colorPickerFrame, TweenInfo.new(0.2, Enum.EasingStyle.Linear), {
+                    Size = UDim2.new(1, 0, 0, 140),
+                })
+                expandTween:play()
+                expandTween.Completed:Wait()
+            end
+        end)
+    end
+    
+    function AddDropdown(parent, config)
+        local dropdownName = config.Name or "Dropdown"
+        local defaultOption = config.Default or ""
+        local options = config.Options or {"Option 1", "Option 2", "Option 3"}
+        local callback = config.Callback or function() end
+        
+        local dropdownFrame = CreateInstance("TextButton", parent, {
+            Size = UDim2.new(1, 0, 0, 25),
+            BackgroundColor3 = Theme.OptionsBackground,
+            Name = "Dropdown",
+            Text = "",
+            AutoButtonColor = false,
+        })
+        
+        AddRoundedCorners(dropdownFrame)
+        AddAccentBorder(dropdownFrame)
+        
+        AddHoverEffect(CreateInstance("TextLabel", dropdownFrame, {
+            TextSize = 12,
+            TextColor3 = Theme.PrimaryText,
+            Text = dropdownName,
+            Size = UDim2.new(1, 0, 0, 25),
+            Position = UDim2.new(0, 35, 0, 0),
+            BackgroundTransparency = 1,
+            TextXAlignment = "Left",
+            Font = Theme.Font,
+        }))
+        
+        local separator = CreateInstance("Frame", dropdownFrame, {
+            Size = UDim2.new(1, 0, 0, 1),
+            Position = UDim2.new(0, 0, 0, 25),
+            BorderSizePixel = 0,
+            BackgroundColor3 = Theme.AccentColor,
+            Visible = false,
+        })
+        
+        local dropdownIcon = CreateInstance("ImageLabel", dropdownFrame, {
+            Image = "rbxassetid://6031090990",
+            Size = UDim2.new(0, 25, 0, 25),
+            Position = UDim2.new(0, 5, 0, 0),
+            BackgroundTransparency = 1,
+        })
+        
+        local selectedLabel = CreateInstance("TextLabel", dropdownFrame, {
+            BackgroundColor3 = Theme.HubBackground,
+            BackgroundTransparency = 0.1,
+            Position = UDim2.new(1, -20, 0, 2.5),
+            AnchorPoint = Vector2.new(1, 0),
+            Size = UDim2.new(0, 100, 0, 20),
+            TextColor3 = Theme.SecondaryText,
+            TextScaled = true,
+            Font = Theme.Font,
+            Text = "...",
+        })
+        
+        AddRoundedCorners(selectedLabel)
+        AddAccentBorder(selectedLabel)
+        
+        local optionsFrame = CreateInstance("ScrollingFrame", dropdownFrame, {
+            Size = UDim2.new(1, 0, 1, -25),
+            Position = UDim2.new(0, 0, 0, 25),
+            CanvasSize = UDim2.new(),
+            ScrollingDirection = "Y",
+            AutomaticCanvasSize = "Y",
+            BackgroundTransparency = 1,
+            ScrollBarThickness = 2,
+        })
+        
+        CreateInstance("UIPadding", optionsFrame, {
+            PaddingLeft = UDim.new(0, 10),
+            PaddingRight = UDim.new(0, 10),
+            PaddingTop = UDim.new(0, 10),
+            PaddingBottom = UDim.new(0, 10),
+        })
+        
+        CreateInstance("UIListLayout", optionsFrame, {
+            Padding = UDim.new(0, 5),
+        })
+        
+        local function CreateOption(optionText)
+            local optionButton = CreateInstance("TextButton", optionsFrame, {
+                Size = UDim2.new(1, 0, 0, 15),
+                Text = optionText,
+                Font = Theme.Font,
+                TextSize = 12,
+                TextColor3 = Color3.fromRGB(180, 180, 180),
+                BackgroundTransparency = 1,
+            })
+            
+            AddRoundedCorners(optionButton)
+            AddAccentBorder(optionButton)
+            
+            if optionText == defaultOption then
+                optionButton.BackgroundTransparency = 0.2
+                optionButton.TextColor3 = Theme.PrimaryText
+                optionButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+                selectedLabel.Text = optionText
+                callback(optionText)
+            end
+            
+            optionButton.MouseButton1Click:Connect(function()
+                PlayClickSound()
+                
+                for _, child in pairs(optionsFrame:GetChildren()) do
+                    if child:IsA("TextButton") then
+                        child.BackgroundTransparency = 1
+                        child.TextColor3 = Color3.fromRGB(180, 180, 180)
+                        child.BackgroundColor3 = Theme.OptionsBackground
+                    end
+                end
+                
+                selectedLabel.Text = optionText
+                callback(optionText)
+                
+                optionButton.BackgroundTransparency = 0.2
+                optionButton.TextColor3 = Theme.PrimaryText
+                optionButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            end)
+        end
+        
+        for _, option in pairs(options) do
+            CreateOption(option)
+        end
+        
+        local isExpanded = false
+        
+        dropdownFrame.MouseButton1Click:Connect(function()
+            PlayClickSound()
+            
+            local optionCount = 0
+            local totalHeight = 25
+            
+            for _, child in pairs(optionsFrame:GetChildren()) do
+                if child:IsA("TextButton") and optionCount < 5 then
+                    optionCount = optionCount + 1
+                    totalHeight = totalHeight + tonumber(child.Size.Y.Offset + 10)
+                end
+            end
+            
+            if isExpanded then
+                CreateTween(dropdownFrame, "Size", UDim2.new(1, 0, 0, 25), 0.3, false)
+                CreateTween(dropdownIcon, "Rotation", 0, 0.3, true)
+                isExpanded = false
+                separator.Visible = false
+            else
+                CreateTween(dropdownFrame, "Size", UDim2.new(1, 0, 0, totalHeight), 0.3, false)
+                CreateTween(dropdownIcon, "Rotation", 180, 0.3, false)
+                isExpanded = true
+                separator.Visible = true
+            end
+        end)
+        
+        return {
+            optionsFrame,
+            defaultOption,
+            callback,
+            selectedLabel,
+        }
+    end
+    
+    function UpdateDropdown(dropdownData, newOptions)
+        local optionsFrame = dropdownData[1]
+        local defaultOption = dropdownData[2]
+        local callback = dropdownData[3]
+        local selectedLabel = dropdownData[4]
+        
+        for _, child in pairs(optionsFrame:GetChildren()) do
+            if child:IsA("TextButton") then
+                child:Destroy()
+            end
+        end
+        
+        local function CreateNewOption(optionText)
+            local optionButton = CreateInstance("TextButton", optionsFrame, {
+                Size = UDim2.new(1, 0, 0, 15),
+                Text = optionText,
+                Font = Theme.Font,
+                TextSize = 12,
+                TextColor3 = Color3.fromRGB(180, 180, 180),
+                BackgroundTransparency = 1,
+            })
+            
+            AddRoundedCorners(optionButton)
+            
+            if optionText ~= defaultOption then
+                selectedLabel.Text = "..."
+            else
+                optionButton.BackgroundTransparency = 0.8
+                optionButton.TextColor3 = Theme.PrimaryText
+                selectedLabel.Text = optionText
+                callback(optionText)
+            end
+            
+            optionButton.MouseButton1Click:Connect(function()
+                PlayClickSound()
+                
+                for _, child in pairs(optionsFrame:GetChildren()) do
+                    if child:IsA("TextButton") then
+                        child.BackgroundTransparency = 1
+                        child.TextColor3 = Color3.fromRGB(180, 180, 180)
+                    end
+                end
+                
+                selectedLabel.Text = optionText
+                callback(optionText)
+                
+                optionButton.BackgroundTransparency = 0.8
+                optionButton.TextColor3 = Theme.PrimaryText
+            end)
+        end
+        
+        for _, option in pairs(newOptions) do
+            CreateNewOption(option)
+        end
+    end
+    
+    function AddTextLabel(parent, config)
+        local labelText = config[1] or (config.Name or "Text Label")
+        
+        local labelFrame = CreateInstance("Frame", parent, {
+            Size = UDim2.new(1, 0, 0, 25),
+            BackgroundColor3 = Theme.OptionsBackground,
+            Name = "Label",
+        })
+        
+        AddRoundedCorners(labelFrame)
+        AddAccentBorder(labelFrame)
+        
+        local labelButton = CreateInstance("TextButton", labelFrame, {
+            TextSize = 12,
+            TextColor3 = Theme.PrimaryText,
+            Text = labelText,
+            Size = UDim2.new(1, 0, 0, 25),
+            Position = UDim2.new(0, 20, 0, 0),
+            BackgroundTransparency = 1,
+            TextXAlignment = "Left",
+            Font = Theme.Font,
+        })
+        
+        AddHoverEffect(labelButton)
+        
+        return labelButton
+    end
+    
+    function SetLabel(label, text)
+        label.Text = text or nil
+    end
+    
+    function AddImageLabel(parent, config)
+        local labelText = config[1] or (config.Name or "")
+        local imageId = config[2] or (config.Image or "rbxassetid://")
+        
+        local imageFrame = CreateInstance("Frame", parent, {
+            Size = UDim2.new(0, 95, 0, 110),
+            BackgroundColor3 = Theme.OptionsBackground,
+            Name = "ImageLabel",
+        })
+        
+        AddRoundedCorners(imageFrame)
+        AddAccentBorder(imageFrame)
+        
+        local labelButton = CreateInstance("TextButton", imageFrame, {
+            TextSize = 12,
+            TextColor3 = Theme.PrimaryText,
+            Text = labelText,
+            Size = UDim2.new(1, 0, 0, 25),
+            BackgroundTransparency = 1,
+            Font = Theme.Font,
+        })
+        
+        local image = CreateInstance("ImageLabel", imageFrame, {
+            Image = imageId,
+            Size = UDim2.new(0, 75, 0, 75),
+            Position = UDim2.new(0, 10, 0, 25),
+        })
+        
+        AddHoverEffect(labelButton)
+        
+        return image
+    end
+    
+    function SetImage(imageLabel, newImage)
+        imageLabel.Image = newImage or nil
+    end
+    
+    function AddParagraph(parent, config)
+        local title = config[1] or (config.Title or "Paragraph")
+        local text = config[2] or (config.Text or "Paragraph content")
+        
+        local paragraphFrame = CreateInstance("Frame", parent, {
+            Size = UDim2.new(1, 0, 0, 25),
+            BackgroundColor3 = Theme.OptionsBackground,
+            Name = "Paragraph",
+            AutomaticSize = "Y",
+        })
+        
+        AddRoundedCorners(paragraphFrame)
+        AddAccentBorder(paragraphFrame)
+        
+        CreateInstance("UIListLayout", paragraphFrame)
+        CreateInstance("UIPadding", paragraphFrame, {
+            PaddingLeft = UDim.new(0, 20),
+            PaddingRight = UDim.new(0, 10),
+            PaddingTop = UDim.new(0, 5),
+            PaddingBottom = UDim.new(0, 5),
+        })
+        
+        local titleButton = CreateInstance("TextButton", paragraphFrame, {
+            Name = "Title",
+            TextSize = 12,
+            TextColor3 = Theme.PrimaryText,
+            Text = title,
+            Size = UDim2.new(1, 0, 0, 0),
+            AutomaticSize = "Y",
+            BackgroundTransparency = 1,
+            TextXAlignment = "Left",
+            TextYAlignment = "Top",
+            Font = Theme.Font,
+            TextWrapped = true,
+        })
+        
+        AddHoverEffect(titleButton)
+        
+        return {
+            titleButton,
+            (CreateInstance("TextLabel", paragraphFrame, {
+                Name = "Content",
+                Size = UDim2.new(1, 0, 0, 0),
+                BackgroundTransparency = 1,
+                AutomaticSize = "Y",
+                TextXAlignment = "Left",
+                TextYAlignment = "Top",
+                TextColor3 = Theme.SecondaryText,
+                TextSize = 11,
+                Text = text,
+                Font = Theme.Font,
+                TextWrapped = true,
+            })),
+        }
+    end
+    
+    function SetParagraph(paragraphData, newContent)
+        paragraphData[1].Text = newContent[1] or paragraphData[1].Text
+        paragraphData[2].Text = newContent[2] or paragraphData[2].Text
+    end
+    
+    function AddSection(parent, config)
+        local sectionName = config[1] or (config.Name or "Section")
+        
+        local sectionFrame = CreateInstance("Frame", parent, {
+            Size = UDim2.new(1, 0, 0, 25),
+            BackgroundColor3 = Theme.HubBackground,
+            Name = "Section",
+            Transparency = 1,
+        })
+        
+        AddRoundedCorners(sectionFrame)
+        
+        return CreateInstance("TextButton", sectionFrame, {
+            TextSize = 12,
+            TextColor3 = Theme.SecondaryText,
+            Text = sectionName,
+            Size = UDim2.new(1, 0, 0, 25),
+            Position = UDim2.new(0, 10, 0, 0),
+            BackgroundTransparency = 1,
+            TextXAlignment = "Left",
+            Font = Theme.Font,
+        })
+    end
+    
+    function SetSection(section, text)
+        section.Text = text or nil
+    end
+    
+    function AddDiscord(parent, config)
+        local discordLink = config[1] or (config.DiscordLink or "https://discord.gg/")
+        local discordIcon = config[2] or (config.DiscordIcon or "rbxassetid://")
+        local discordTitle = config[3] or (config.DiscordTitle or "")
+        
+        local discordFrame = CreateInstance("Frame", parent, {
+            Size = UDim2.new(1, 0, 0, 110),
+            BackgroundColor3 = Color3.fromRGB(30, 30, 30),
+            Name = "Discord",
+            AutomaticSize = "Y",
+        })
+        
+        CreateInstance("TextLabel", discordFrame, {
+            Size = UDim2.new(1, 0, 0, 25),
+            Text = discordLink,
+            TextXAlignment = "Left",
+            BackgroundTransparency = 1,
+            Position = UDim2.new(0, 12, 0, 0),
+            TextColor3 = Color3.fromRGB(0, 120, 255),
+            Font = Enum.Font.GothamBold,
+            TextSize = 14,
+        })
+        
+        CreateInstance("TextLabel", discordFrame, {
+            Size = UDim2.new(1, 0, 0, 25),
+            Text = discordTitle,
+            TextXAlignment = "Left",
+            BackgroundTransparency = 1,
+            Position = UDim2.new(0, 60, 0, 25),
+            TextColor3 = Color3.fromRGB(200, 200, 200),
+            Font = Enum.Font.GothamBold,
+            TextSize = 14,
+        })
+        
+        local icon = CreateInstance("ImageLabel", discordFrame, {
+            Size = UDim2.new(0, 40, 0, 40),
+            AnchorPoint = Vector2.new(0, 0.5),
+            Position = UDim2.new(0, 12, 0.45, 0),
+            Image = discordIcon,
+        })
+        
+        AddRoundedCorners(icon)
+        
+        local copyButton = CreateInstance("TextButton", discordFrame, {
+            Size = UDim2.new(1, -24, 0, 25),
+            AnchorPoint = Vector2.new(0.5, 1),
+            Position = UDim2.new(0.5, 0, 1, -8),
+            Text = "Copy Link",
+            Font = Enum.Font.GothamBold,
+            TextSize = 15,
+            TextColor3 = Color3.fromRGB(220, 220, 220),
+            BackgroundColor3 = Color3.fromRGB(50, 200, 50),
+        })
+        
+        AddRoundedCorners(icon)
+        
+        local lastClickTime = tick()
+        local clickCounter = 0
+        
+        copyButton.MouseButton1Click:Connect(function()
+            if clickCounter == 0 or tick() - lastClickTime > 5 then
+                lastClickTime = tick()
+                setclipboard(discordLink)
+                
+                clickCounter = clickCounter + 1
+                copyButton.Text = "Copied to Clipboard"
+                copyButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+                copyButton.TextColor3 = Color3.fromRGB(150, 150, 150)
+                
+                task.wait(5)
+                
+                copyButton.Text = "Copy Link"
+                copyButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+                copyButton.TextColor3 = Color3.fromRGB(220, 220, 220)
+            end
+        end)
+    end
+    
+    return mainWindow
+end
